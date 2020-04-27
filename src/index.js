@@ -99,7 +99,7 @@ console.log(numTimesNum(10, 5));
 // It is REUSABLE because it is GENERALIZED!
 
 /********************************************************* */
-console.log(".........higher order functions");
+console.log(".........higher order functions!!!");
 /**
  * higher oder function are similar to generalized function
  * but they don't just reuse a number but get a lot more general because
@@ -147,3 +147,122 @@ function addThree(number) {
 }
 
 console.log(addedThree);
+
+/********************************************************* */
+console.log(".........closures!!!!");
+// to make a closure, you have to return a function from a function like so:
+
+// 1. declare a function called 'create function' and store its code on global memory
+// 3. create new local execution context for 'createFunction'
+function createFunction() {
+  //4. declare a new function 'multiplyByTwo' (don't execute it)
+  function multiplyBy2(num) {
+    return num * 2;
+  }
+  //5. return the code of 'multiplyByTwo' and assign it to 'createFunction'
+  return multiplyBy2; // (no parenthisis, because we want to return the function itself, not the result of running it)
+}
+
+// 2. declare a costant do which the returned value of calling create func gets assigned to
+/* 6. assign the returned value of executing 'createFunction' to the constant 'generatedFunc'
+      (generatedFunc === multiplyByTwo)*/
+const generatedFunc = createFunction(); //(generatedFunc has NOTHING to do with createFunction AT ALL!)
+
+//7. run generatedFunc (multiplyByTwo) with the argument 3 and assign the returned value to the constant 'result'
+const result = generatedFunc(3);
+// 8. log the value of the constant 'result' to the console
+console.log(result);
+
+/*********** */
+
+/**
+ *
+ *
+ *
+ *
+ *
+ *
+ */
+
+// calling a function inside of another function: (nested function scope)
+
+// 1. declaring outer in global memory
+function outer() {
+  // 3. define a LOCAL variable inside the lovcal memory of 'outer' and assigning it the value 0
+  let counter = 0;
+
+  //4. declaring a function called 'incrementCounter' and storing it in the ! LOCAL ! memory of !'outer'!
+  function incrementCounter() {
+    /** 5.The function tries to increment 'counter'.
+     * 5.1 it looks in the local memory of 'incrementCounter, but doesn't find anything there.
+     * That's why it stepps out one layer and looks in the local memory of 'outer'.
+     * It finds counter and increments it. OR DOES IT??? !!! NO, IT DOESN'T !!!
+     * look at the next function example to find out more!
+     */
+    counter++;
+  }
+
+  // 5. execute incrementCounter (create new  local execution context INSIDE 'outer')
+  incrementCounter();
+
+  return counter;
+}
+
+// 2. declaring a global constant 'counter' and assigning it the returned value of 'outer'
+const counter = outer();
+console.log(counter);
+
+/**
+ *
+ *
+ *
+ *
+ *
+ *
+ */
+console.log(".......");
+// Calling a function outside of the function all in which it was defined
+
+// 1. declaring the function 'outer' in global memory
+function outer2() {
+  //3. declaring a varibale 'counter' in local memory of 'outer2' and assigning it the value 0
+  let counter = 0;
+
+  // 4. delaring the function 'incrementCounter' in the local memory of 'outer2' (storing all of its code under the label 'incrementCounter')
+  function incrementCounter() {
+    counter++; //the function DOESN'T GET INVOKED YET!!!
+    console.log(counter);
+  }
+
+  /* 5. Instead of invoking the function, we return it and assign the CODE 
+        stored under the label 'increment counter' to 'outer2' */
+  // the call stack is empty now. the only thing that got saved is incrementCounter
+  return incrementCounter;
+}
+
+//2. declaring the const 'incrementCounterClone' and assigning it the value returned by runing 'outer2'
+// 6. assigning the result of outer ( ! LITERUALLY THE CODE OF 'incrementCounter' ! to the constand 'incrementCounterClone')
+const incrementCounterClone = outer2();
+// 7. invoking incrementCounterClone (incrementCounter), creating new execution context and trying to increment the counter
+/**But where does the incrementCounterClone got his link to 'counter'?
+ * 
+ * AS SOON AS 'outer2' RETURNED THE FUNCTION DEFINITION (the whole code of incrementCounter)
+   THE RETURNED FUNCTION (incrementCounter) TOOK ! ALL ! THE OTHER THINGS THAT ARE IN
+   THE LOCAL MEMORY WITH IT (and are used inside the returned function) (like on a small backpack). 
+   THAT'S WHY IT IS POSSIBLE TO INCREMENT THE 'counter' EVEN THOUGH IT SEEMS LIKE IT WAS
+   DELETED SINCE IT WASN'T RETURNED OUT OF THE FUNCTION WHEN 'outer2' POPPED OF THE CALL STACK.
+
+  So incrementCounterClone looks in its local memory and doesn't find 'counter' ther.
+  BUT before it look in global memory, it looks into its 'backpack' and if it find 'counter',
+  which it does, the 'counter' is updatet to one
+*/
+incrementCounterClone();
+
+/**
+ * now, if we call incrementCounterClone again, the same procedure happens. But now,
+ * the counter is not zero, but one because it got updated by preceding function call.
+ * The counter now gets updated to two
+ */
+incrementCounterClone();
+incrementCounterClone();
+incrementCounterClone();
