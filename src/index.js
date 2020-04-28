@@ -231,20 +231,20 @@ function outer2() {
   // 4. delaring the function 'incrementCounter' in the local memory of 'outer2' (storing all of its code under the label 'incrementCounter')
   function incrementCounter() {
     counter++; //the function DOESN'T GET INVOKED YET!!!
-    console.log(counter);
+    console.log(`counter: ${counter}`);
   }
 
   /* 5. Instead of invoking the function, we return it and assign the CODE 
         stored under the label 'increment counter' to 'outer2' */
-  // the call stack is empty now. the only thing that got saved is incrementCounter
+  // the call stack is empty now. The only thing that got returned out and is not in global memory, is incrementCounter
   return incrementCounter;
 }
 
-//2. declaring the const 'incrementCounterClone' and assigning it the value returned by runing 'outer2'
-// 6. assigning the result of outer ( ! LITERUALLY THE CODE OF 'incrementCounter' ! to the constand 'incrementCounterClone')
+//2. declaring the const 'incrementCounterClone' and assigning it the value returned by running 'outer2'
+// 6. assigning the result of outer ( ! LITERUALLY THE CODE OF 'incrementCounter' ! to the constant 'incrementCounterClone')
 const incrementCounterClone = outer2();
 // 7. invoking incrementCounterClone (incrementCounter), creating new execution context and trying to increment the counter
-/**But where does the incrementCounterClone got his link to 'counter'?
+/**But where does the incrementCounterClone got his link to 'counter' from?
  * 
  * AS SOON AS 'outer2' RETURNED THE FUNCTION DEFINITION (the whole code of incrementCounter)
    THE RETURNED FUNCTION (incrementCounter) TOOK ! ALL ! THE OTHER THINGS THAT ARE IN
@@ -252,9 +252,9 @@ const incrementCounterClone = outer2();
    THAT'S WHY IT IS POSSIBLE TO INCREMENT THE 'counter' EVEN THOUGH IT SEEMS LIKE IT WAS
    DELETED SINCE IT WASN'T RETURNED OUT OF THE FUNCTION WHEN 'outer2' POPPED OF THE CALL STACK.
 
-  So incrementCounterClone looks in its local memory and doesn't find 'counter' ther.
-  BUT before it look in global memory, it looks into its 'backpack' and if it find 'counter',
-  which it does, the 'counter' is updatet to one
+  So incrementCounterClone looks in its local memory and doesn't find 'counter' there.
+  BUT before it look in global memory, it looks into its 'backpack' and if it finds 'counter',
+  which it does, the 'counter' gets updated to one
 */
 incrementCounterClone();
 
@@ -262,7 +262,32 @@ incrementCounterClone();
  * now, if we call incrementCounterClone again, the same procedure happens. But now,
  * the counter is not zero, but one because it got updated by preceding function call.
  * The counter now gets updated to two
+ * => The data stored in the closure of the incrementCounter function is persistent.
+ *    It doesn't reset. If the value is changed, it will stay like that, until it gets updated again.
+ *    That's why it is possible to call increment the counter like so : 1 2 3 4 and not like so: 1 1 1 1
  */
 incrementCounterClone();
 incrementCounterClone();
 incrementCounterClone();
+
+// JavaScrip is lexically / static scoped: THE SCOPE IN WHICH THE FUNCTION GETS DEFINED IS WHAT DETERMINES
+// DATA THE FUNCTION HAS ACCES. IT DOESN'T MATTER WHERE THE FUNCTION GETS CALLED !
+// => this is why the returned function has to take the rest of its Local memory with it, since
+// this is the only way to save it's scope / access to the variables it depends on
+
+// THATS WHY YOU CAN A BETTER WORD FOR CLOSURE WOULD BE:
+
+//    !!!!!!!      PERSISTANT LEXICAL SCOPED REFERENCE DATA (P.L.S.R.D)    !!!!!!!!!
+
+/* if you run 'outer2' again and store it in a different variable, a completly new 
+  execution context would get created, with a completly new closure / backpack / P.L.S.R.D */
+
+const incrementCounterClone2 = outer2();
+
+incrementCounterClone2();
+incrementCounterClone2();
+incrementCounterClone2();
+incrementCounterClone2();
+
+// if you look in the console, the values start a 1 again like so: 1 2 3 4 and don't add up
+// to the other counter like so: ... 5 6 7 8.
