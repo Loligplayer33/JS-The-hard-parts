@@ -514,12 +514,9 @@ user12.increment();
 // that's why the score is now incremented by one an
 console.log(user12);
 
-
-
 /************************************************** */
 // The 'class' syntactic sugar:
-console.log('class way:');
-
+console.log("class way:");
 
 class UserCreatorClass {
   // this is where we define the isntance - individual data, the methods can then work with
@@ -530,18 +527,129 @@ class UserCreatorClass {
   }
 
   // the methods are still stored in the protoype property of the function object through the __proto__ property (implicitly)
-  increment() { //no 'function' keyword needed to decalre methods in classes
-    this.score++
+  increment() {
+    //no 'function' keyword needed to decalre methods in classes
+    this.score++;
   }
 
   login() {
-    console.log('login');
+    console.log("login");
   }
 }
 
-const user113 = new UserCreatorClass('David', 15 )
+const user113 = new UserCreatorClass("David", 15);
 
 user113.increment();
 console.log(user113);
 
 // this is just another approach, but it works the exact same way
+
+/**
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ */
+
+console.log(".........Iterators!!!");
+
+// iterators are a new way to loop over data and change every element
+
+const numbers = ["first: 1", "second: 2", "third: 3"];
+
+// with iterators, we don't have to worry about accessing the elements anymore
+for (let i = 0; i < numbers.length; i++) {
+  // the index would be 0, 1, 2 and it can get quite confusing to loop loop over arrays
+  console.log(numbers[i]);
+}
+
+// iterators automate the accessing of each element - so we can focus on what to do
+// to each element and not focus on how to reach the element
+
+function createFlow(array) {
+  let i = 0;
+
+  // in an iterator, the function that makes jups to the next element in the
+  // array is stored in an object
+  const inner = {
+    next: function() {
+      const element = array[i];
+      i++;
+      console.log(`iteration number: ${i}, array value: ${element}`);
+      return element;
+    }
+  };
+  // since we return the object inner from the other function 'createFlow'
+  // it now has all the code of local it needs in local memory in its 'closure'
+  return inner;
+}
+
+// that's why we can now assign the code of inner with its closure (which is the result of executing 'createFlow')
+const returnNextElement = createFlow([4, 5, 6]);
+// now we can iterate over every element in the array
+const element1 = returnNextElement.next();
+const element2 = returnNextElement.next();
+const element3 = returnNextElement.next();
+
+// => but we have to call the function again and again to get to the next element!
+// That's where generator functions come into play
+
+/**
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ */
+console.log("..........generator functions!!!");
+
+//1. we declare a generator function in global memory
+function* createGenerator() {
+  yield 1;
+  yield 2;
+  yield 3;
+}
+
+/*
+2.We declare a global constant  
+2.1'createGenerator' is called, but it doesn't create a new Execution context.
+  Instead it returns an object, with a function on it called 'next'.
+ */
+const returnOutNextElement = createGenerator();
+
+/**
+ * 3. we declare a constant in global memory and assign it the value returned by the 'returnNextElement.next()'
+ * 3.1. The 'next()' function is conntcted to where it was born (createGenerator).
+ *      That's why NOW the createGenerator is called, and a new local execution context gets created
+ * 3.2. As soon as the 'yield' keyword gets hit in returnOutNextElement (cf. l.614)
+ *      the function 'pauses' and returns out the value to  the constant 'elementOne'
+ */
+
+const elementOne = returnOutNextElement.next();
+// 4. The same procedure is repeated here, but now the function hits the
+// second 'yield' and returns its value to the constant 'elementTwo '
+const elementTwo = returnOutNextElement.next();
+
+/**
+ *
+ * using generator functions together with dynamically set data
+ *
+ */
+
+function* createDynamicFlow() {
+  const num = 10;
+  const newNum = yield num;
+  yield 5 + newNum;
+  yield 6;
+}
+
+const returnTheNextElement = createDynamicFlow();
+
+const firstElement = returnTheNextElement.next();
+const secondElement = returnTheNextElement.next(2);
