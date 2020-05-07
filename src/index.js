@@ -628,7 +628,7 @@ const returnOutNextElement = createGenerator();
  * 3.1. The 'next()' function is conntcted to where it was born (createGenerator).
  *      That's why NOW the createGenerator is called, and a new local execution context gets created
  * 3.2. As soon as the 'yield' keyword gets hit in returnOutNextElement (cf. l.614)
- *      the function 'pauses' and returns out the value to  the constant 'elementOne'
+ *      the function 'pauses' and returns out the value to the constant 'elementOne'
  */
 
 const elementOne = returnOutNextElement.next();
@@ -642,6 +642,7 @@ const elementTwo = returnOutNextElement.next();
  *
  */
 
+// declaring a generator function in global memory
 function* createDynamicFlow() {
   const num = 10;
   const newNum = yield num;
@@ -649,7 +650,37 @@ function* createDynamicFlow() {
   yield 6;
 }
 
+// assignign the returned value of 'createDynamicFlow' (generator function) to global constant
+// (the returned value is a so calledd 'generator Object' with a 'next' property on it)
+// this 'next' property is a method implicitly stored on the object.
+// at this point, no execution context gets created, even though we called the function with ()
 const returnTheNextElement = createDynamicFlow();
 
+// now we can call the next method. This creates a new execution context.
+/**a local constant num is created. And assigned the value 10 
+ * then, another local constant 'newNum' is created, it gets assigned the value
+ * 10 and because of 'yield', the function 'pauses' and return out 10 and assigns
+ * it to 'first element'.
+ * The current point of the execution context is stored, so that for the next .next()
+ * call, the function doesn't start at the top again, but goes straight to the next line
+  => newNum wasn't assigned anything yet. It is still undefined since the function
+    returned before it was able to assign 10 to 'newNum'
+ */
 const firstElement = returnTheNextElement.next();
+/**This is what is happening here. The function hits the next 'yield' and returns
+ * 5 + newNum. But what is 'newNum' ? Until now, it was undefined. But this time,
+ * we pass an argument (2) in the .next(). This value passed in as a parameter
+ * gets assigned to 'newNUM'
+ * That's why the yield return 5 + 2, which is 7.
+ */
 const secondElement = returnTheNextElement.next(2);
+
+// this time the method would return 6 since that is what the next yield is assigned to
+const thirdElement = returnTheNextElement.next();
+
+// at this point, there a no more yield keyword in the 'createDynamicFlow'generator function
+// this is why the value will now be udnefined, and the 'done' property now gets
+// changed to 'true'. => the generator stopped executing
+const end = returnTheNextElement.next();
+
+console.log(firstElement, secondElement, thirdElement, end);
