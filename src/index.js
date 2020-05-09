@@ -684,3 +684,100 @@ const thirdElement = returnTheNextElement.next();
 const end = returnTheNextElement.next();
 
 console.log(firstElement, secondElement, thirdElement, end);
+
+/**
+ *
+ *
+ * Asynchronous Generators
+ *
+ */
+
+//1. decalre a function in global memory
+function doWhenDataReceived(value) {
+  // 7. now the function gets called and has as an argument the
+  // value property ('hi') of the promise Object.
+  // it then calls the generator method on the generator object again
+  // and passes in the value ('hi') as a the parameter.
+  nextElement.next(value);
+}
+
+// 2. declare a denerator function in global memory
+function* createFlow123() {
+  // 2.1 a local constant gets created but stays undefined, since the
+  // yield keyword returns the value out before it can be stored to 'data'
+  // 8. The returned value ('hi) now gets assigned to 'data'
+  const data = yield fetch(
+    "https://twitter.com/FLOTUS/status/1258877524421066753"
+  );
+  // 9. the data can be logged to the console
+  console.log(data);
+}
+
+//3 creating a global constant which will store the output of calling 'createflow123'
+//3.1 the result will ge a generator object with a 'next' method on it
+const nextElement = createFlow123();
+
+// 4. declare a constant in global memory which gets assigend the
+//  output of the 'nextElement.next()' call.
+/**
+ * 4.1 a new Execution context for 'createFlow123' gets created
+ * 4.2 a local constant is created in local memory which is undefined in the moment
+ * 4.3.1 the fetch statement returns out the promise object with a
+ *       value and an onfullfilled property
+ * => value stores the data and onfullfilled the functions that should be
+ *    auto-triggered as soon as the data comes back.
+ * 4.3.2
+ * 4.4. The promise Object doesn't get stored in the constant since
+ * it gets returned straight out due to the 'yield' keyword.
+ * 5. fetch will send an xhr request in the browser to the given domain
+ * to get the data. To do this, it needs the URL (twitter.com), the path(/will/1) and the method type (GET, POST...)
+ * As soon as fetch comes back with the data, it puts the returned value in the value
+ * property of the promise object now being in global memory
+ */
+const futureData123 = nextElement.next();
+// futureData123 now holds the promise object with 'value' and 'onfullfilled'
+// property on it. 'value' is undefined, since no data has come back until now.
+/**6. inside the '.then' method we can now specify what we want to do, once
+   the fetch returned the data and put it into the 'value' property.
+   these methods get pushed into the onfullfillment array and auto triggerd
+   as soon as the value property !== undefined
+   But the function doesn't get put into the noraml call stack right away. It has 
+   to wait in the mircotask queue as long as all other local and global code finished
+   executing and the callstack, as well as the event loop is completly empty
+ */
+futureData.then(doWhenDataReceived);
+
+/**
+ *
+ *
+ *
+ *
+ *
+ */
+console.log(".........async-await!!!");
+
+// 1. create an async function 'creatAsyncFlow' in global memory
+async function createAsnycFlow() {
+  //3. log 'me first' to the console
+  console.log("Me first");
+  // 4. declare a local constant 'data'
+  // 5. 'fetch' returns out a promise object with two properties: 'value' 'onfullfillment'
+  /*    => the data that comes bac from the xhr will get assigned to 'value'
+           and the onfullfillment array can get methods pushed on to it that handle the data
+    6. the 'await' keyword will return the value request out, and the thread of execution exits
+      the createAsyncFlow temporarly
+    7. as soon as the data comes back and the 'value' property of the promise object gets updated,
+      'createFlow' gets pushed onto the mircotask queue and is ready to get executed to the end
+  */
+  const data = await fetch(
+    "https://twitter.com/FLOTUS/status/1258877524421066753"
+  );
+  // since data will be evaluated to the respond of the fetch(), which gets stored in 'data'
+  // now the data can be logged to the console.
+  console.log(data);
+}
+
+//2. invoke the async function 'createAsyncFlow'
+createAsnycFlow();
+
+console.log("Me second");

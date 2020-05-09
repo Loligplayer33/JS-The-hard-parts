@@ -13,10 +13,10 @@
     {
       "views": [
         {
-          "id": "codesandbox.console"
+          "id": "codesandbox.problems"
         },
         {
-          "id": "codesandbox.problems"
+          "id": "codesandbox.console"
         }
       ]
     }
