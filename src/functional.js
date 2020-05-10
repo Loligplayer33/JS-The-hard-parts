@@ -1,4 +1,7 @@
 /*eslint no-unused-vars: "off"*/
+
+// commented out code should be seen as valid (commented out to get rid of errors)
+
 console.log(".....................................");
 console.log("FUNCTIONAL PROGRAMMING");
 
@@ -132,3 +135,87 @@ rate3 = shippingRate3(8, 4, 6); // 42
 
     Seperate your side effect code from the core, functional code.
  */
+
+/**A pure function is a function that takes all of its inputs direct, it 
+   outputs direct and has no side effects.
+   => In JS, what really matters are the function calls and their purity.
+ */
+
+// pure function:
+function addTwo(x, y) {
+  return x + y;
+}
+
+// impure function:
+function addSomethinElse(x, y) {
+  return x + y + z;
+}
+var z = 0;
+// There is more than that too it. but this is the most obvious case.
+
+// Can this function be considered 'pure' ?
+function getId(obj) {
+  return obj.id;
+}
+
+// no, because pure function calls have to act in isolation.
+// => that means: given the same input, the function always has to produce the same output.
+getId({
+  get id() {
+    return Math.random();
+  }
+});
+
+/**
+ *
+ *
+ *
+ *
+ *
+ */
+console.log("...extracting impurity!!!");
+
+// This is an impure function because it changes the DOM:
+function addComment(userID, comment) {
+  var record = {
+    id: "randomID",
+    userID,
+    text: comment
+  };
+
+  // var elements = buildCommentElement(record);
+  // commentsList.appendChild(elements)
+}
+
+addComment(42, "This is comment No. 1");
+
+// the above function can be changed as following:
+function newComment(userID, commentID, comment) {
+  var record = {
+    id: commentID,
+    userID,
+    text: comment
+  };
+  // return buildCommentElement(record)
+}
+// => 'newComment' is now a completly pure function.
+
+// And all the impure stuff that has to happen is now seperated if an error occurs,
+// it will most likely be easier to spot, because it is most of the time in the impure
+// code snippets
+
+// var commentID = uniqueID();
+
+var elem = newComment(
+  42,
+  // commentID,
+  "This is comment Nr. 2"
+);
+
+/**
+ *
+ *
+ *
+ *
+ */
+console.log("...containing impurity!!!");
