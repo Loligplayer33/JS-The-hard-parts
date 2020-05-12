@@ -219,3 +219,87 @@ var elem = newComment(
  *
  */
 console.log("...containing impurity!!!");
+
+/**
+ *
+ *
+ *
+ *
+ *
+ */
+
+console.log("...Adapters!!!");
+
+// HIGHER ORDER FUNCTIONS
+
+// higher order function are functions that get other functions passed in as parameters
+function unary(fn) {
+  return function one(arg) {
+    console.log(arg);
+    return fn(arg);
+  };
+}
+
+function binary(fn) {
+  return function two(arg1, arg2) {
+    return fn(arg1, arg2);
+  };
+}
+
+function f(...args) {
+  return args;
+}
+
+// is is the returned value of running 'unary'
+// (=> the function definition of 'one' and the closure including the 'fn' parameter)
+var g = unary(f);
+// same as above just with the binary function.
+var h = binary(f);
+
+// if 'g' not gets called, it passes its first argument into 'one' and returns the parameter
+console.log(g(1, 2, 3, 4));
+// same thing here, but this time the function 'two' takes two paramters and is
+//therefore capable of returning the first to elements [1, 2]
+console.log(h(1, 2, 3, 4));
+
+// FLIP
+
+// sometimes it is necessary to flip the order of some arguents:
+
+function flip(fn) {
+  return function flipped(arg1, arg2, ...args) {
+    return fn(arg2, arg1, ...args);
+  };
+}
+
+function collector(...args) {
+  return args;
+}
+
+var fl = flip(f);
+
+console.log(fl(1, 2, 3, 4));
+
+/**
+ *
+ *
+ *
+ *
+ *
+ */
+console.log("...point free functions!!!");
+
+// here we define 'isEven' based on 'isOdd' which has an extremly similar shape.
+function isOdd(v) {
+  return v % 2 === 1;
+}
+// instead of wrmxxxxiting v % 2 === 0 we just negate isOdd which accomplishes the same result
+function isEven(v) {
+  // Now the real question comes in: is it possible to define 'isEven' point free?
+  /* => we actually don't really care about 'isEven', but rather about what it holds.
+        So how can we get rid of isEven without losing the functionality of it?
+  */
+  return !isOdd(v);
+}
+
+console.log(isEven(4));
