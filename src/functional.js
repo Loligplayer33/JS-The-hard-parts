@@ -293,7 +293,7 @@ console.log("...point free functions!!!");
 function isOdd(v) {
   return v % 2 === 1;
 }
-// instead of wrmxxxxiting v % 2 === 0 we just negate isOdd which accomplishes the same result
+// instead of writing v % 2 === 0 we just negate isOdd which accomplishes the same result
 function isEven(v) {
   // Now the real question comes in: is it possible to define 'isEven' point free?
   /* => we actually don't really care about 'isEven', but rather about what it holds.
@@ -303,3 +303,185 @@ function isEven(v) {
 }
 
 console.log(isEven(4));
+
+// this way of defining funcitons with a similar shape only once can easily be
+// combined with an higher order function:
+
+function not(fn) {
+  return function negated(...args) {
+    return !fn(...args);
+  };
+}
+
+function isOdd2(v) {
+  return v % 2 === 1;
+}
+
+var isEven2 = not(isOdd);
+// it is really easy to reason about what the above code does. It may be harder to understand
+// how it does what it does, since it is more implicit and we focus more on the what and less on the how.
+console.log(isEven2(4));
+
+console.log("...normal way!!!");
+
+// making the following code Point free:
+function output11(txt) {
+  console.log(txt);
+}
+
+function printIf11(shouldPrintIt) {
+  return function(msg) {
+    if (shouldPrintIt(msg)) {
+      output11(msg);
+    }
+  };
+}
+
+function isShortEnough1(str) {
+  return str.length <= 5;
+}
+
+function isLongEnough1(str) {
+  return !isShortEnough1(str);
+}
+
+var msg11 = "Hello";
+var msg21 = msg11 + " World";
+
+printIf11(isShortEnough1)(msg11); // Hello
+printIf11(isShortEnough1)(msg21);
+printIf11(isLongEnough1)(msg11);
+printIf11(isLongEnough1)(msg21); // Hello World
+
+console.log("...point free way!!!");
+
+// Point free way:
+// 1. declare a function in global memory
+function when1(fn) {
+  return function(predicate) {
+    return function(...args) {
+      if (predicate(...args)) {
+        return fn(...args);
+      }
+    };
+  };
+}
+
+// 2. declare another function in global memory
+function not1(fn) {
+  return function negated(...args) {
+    return !fn(...args);
+  };
+}
+
+// 3. declare a variable in global memory and assign its this back to the console.
+var output = console.log.bind(console);
+
+// 4. declare a variable in global memory and assign it the returned value of calling 'when' with the output (log statement) as the argument.
+// 4.1 it stores a function definition, together with the console statement coming from 'output' (in the closure) under this label. (it is still a function and can be invoked)
+var printIf = when1(output);
+
+// 5. we store the variable 'isLongEnough' in global memory and assign it the returned value of calling the negation function 'not' together with the 'isShortenogh' as the argument.
+// 5.1 'isLongEnough' now gets assigned the negation of calling 'isShortEnough' (everytime the function returns false) the 'not' function turns it into true and the other way around.
+var isLongEnough = not(isShortEnough);
+
+function isShortEnough(str) {
+  return str.length <= 5;
+}
+
+var msg1 = "Hello";
+var msg2 = msg1 + " World";
+
+// 6. now if we call printIf  with 'isShortEnough' as an argument, what we actually do is calling the returned function with the closure containing the var 'output' in its closure. Then we pass isShort in as the argument. The function returns again (another function).
+// 7. this inner function now gets called right away with the second pair of parenthisis (in this case containing the string 'Hello').
+// 7.1 the most inner function now checks if the predicate (isShortEnough) returns true. If it does, it steps into the if statement and returns a function stored under the label 'fn' (in this case 'output')
+// The results get logged to the console.
+printIf(isShortEnough)(msg1); // Hello
+// if the message is to long, and the if statement doesn't return 'true', the function won't print anything to the console
+printIf(isShortEnough)(msg2);
+// same here, just that 'isShortEnough' gets negated. Now if the string is not longer than 5 letters, nothing will be printed to the console. ('Hello'.length < 5 => no console.log)
+printIf(isLongEnough)(msg1);
+// ('Hello World'.length > 5 => log to the console).
+printIf(isLongEnough)(msg2); // Hello World
+
+// the order of listing arguments:
+// => the shape of a function matters a lot to functional programmers:
+
+// this function takes in 2 parameters and is not very specifif
+function mod(y) {
+  return function forX(x) {
+    // in mod2 y === 2
+    return x % y;
+  };
+}
+
+function eq(y) {
+  return function forX(x) {
+    return x === y;
+  };
+}
+
+// mod2 'fixes' on of the two parameters of 'mod' and is therefore much more specific. (it sets the y parameter to the argument 2)
+var mod2 = mod(2);
+var eq1 = eq(1);
+
+function isOdd3(x) {
+  // the output of the mod2 call is passed dircetly as an input of the eq1 call.
+  // => passing the output of a function directly as an imput of another function is called 'composition'
+
+  // 1. the x is passed as the x into the mod2 function and gets modular checked against 2. if x is odd, the function will return 1 else 0
+  // 2. the output gets passed dircetly into eq1 as an argument. It then checks if the argument is equal to what is passed into the eq function
+  // (in this case 1) This is the case and eq1 threfore returns 'true'. => isOdd3 returns true and the number passed in is definitely Odd.
+  return eq1(mod2(x));
+}
+
+console.log(isOdd3(5)); //true
+console.log(isOdd3(6)); //false
+
+/**
+ *
+ *
+ *
+ *
+ *
+ *
+ */
+
+console.log("...closures!!!");
+
+/**Closure is when a function 'remembers' the variables around it even when that function is executed elsewhere */
+
+function makeCounter() {
+  var counter = 0;
+  return function increment() {
+    return ++counter;
+  };
+}
+
+var closure = makeCounter();
+
+console.log(closure()); //1
+console.log(closure()); //2
+console.log(closure()); //3
+
+// is this example of closure an example of a pure function?
+// => No, definitely not, because a pure function has to return the same output if it receives the same input. This is not the case here.
+
+// closures and functional programming:
+
+function unary5(fn) {
+  return function one(arg) {
+    return fn(arg);
+  };
+}
+function addAnother(z) {
+  return function addTwo(x, y) {
+    return x + y + z;
+  };
+}
+
+// these two functions don't change the referenced varibles through closure. They just keep it in their closure so they can reuse it, if they
+// get called later in the programm, in a completly different scope, after the local memory in which these variables originally have lived in
+// is already deleted
+
+// They *use* / *reference* variables outside of their scope withou chaning them. If this statement is true, the use of closure is pure.
