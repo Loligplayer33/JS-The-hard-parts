@@ -1,5 +1,5 @@
 /*eslint no-unused-vars: "off"*/
-
+/*eslint no-undef: "off"*/
 // commented out code should be seen as valid (commented out to get rid of errors)
 
 console.log(".....................................");
@@ -485,3 +485,117 @@ function addAnother(z) {
 // is already deleted
 
 // They *use* / *reference* variables outside of their scope withou chaning them. If this statement is true, the use of closure is pure.
+
+/**
+ *
+ *
+ *
+ *
+ */
+
+console.log("...Eager vs lazy & memoization!!!");
+
+// Lazy vs Eager loading:
+
+// Lazy Loading
+
+// On which line of this programm does the actual construction of the string occur? Line 508 or 511?
+
+function repeaterLazy(count) {
+  return function allTheAs() {
+    return "".padStart(count, "A");
+  };
+}
+
+var A10 = repeaterLazy(10);
+// right here the returned value of the outer function gets assigned together with its parameter to the variable A10.
+
+console.log(A10()); //"AAAAAAAAAA"
+// here is, where the inner function gets called and the actual string gets constructed
+console.log(A10()); //"AAAAAAAAAA"
+// and the work is done again here and would get done everytime, A10 gets called.
+
+// The work is not done as soon as the outer function gets called, this approach is called 'lazy'; the work gets deferred to a later point in the programm
+// the benefits are that if the inner function never gets called, the work never has to be done. The problem is, that the work has
+// to be done from the beginning everytime the function gets called.
+
+// eager loading:
+
+// this time the work gets done even if the inner function never gets called. The benefit is, that if the function gets called multiple
+// times, the computation doesn't has to happen all over again but the results can just be referenced from the closure
+
+function repeaterEager(count) {
+  var str = "".padStart(count, "A");
+
+  return function allTheAs() {
+    return str;
+  };
+}
+
+// here does the work occur and the result get stored in the closure
+var A15 = repeaterEager(15);
+
+// we just have to refernce it here, no computation has to be done here
+console.log(A15()); //AAAAAAAAAAAAAAA
+console.log(A15()); //AAAAAAAAAAAAAAA
+
+// We have to determine which use case would be more suitable for the problem in hand eagerly(now) or lazy(later)
+
+// we have to make compromises, we either do the work once for sure or do it only if needed, but as often as needed...
+
+// this is how it is done:
+
+// this function only does the computation if it is run the first time (checkeck by if(str === undfined)) : return str but is it pure?
+// => It changes the variable str from undefined to 'AAAAAAA...' once. So this is not really pure, but what is much more important:
+// Does the output change if you call the function multiple times with the same input? NO! Therefore the function is pure but is hard to tell.
+function repeaterMemoization(count) {
+  var str;
+  return function allTheAs() {
+    if (str === undefined) {
+      str = "".padStart(count, "A");
+    }
+    return str;
+  };
+}
+
+var A20 = repeaterMemoization(20);
+
+console.log(A20()); //AAAAAAAAAAAAAAAAAAAA
+console.log(A20()); //AAAAAAAAAAAAAAAAAAAA
+
+// How to solve the problem of readability? => use the memoization function provided by a fn programming library:
+
+function repeaterMemoizeLib(count) {
+  // memoize coming from a  3rd party library
+  return memoize(function allTheAs() {
+    return "".padStart(count, "A");
+  });
+}
+
+// var A25 = repeaterMemoizeLib(25)
+
+// A25();  //AAAAAAAAAAAAAAAAAAAAAAAAA
+// A25();  //AAAAAAAAAAAAAAAAAAAAAAAAA
+
+/**
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ */
+
+// pure function calls: complete definition:
+
+console.log("Pure function call definition:");
+console.log(
+  "A function call is pure if one could take the returned value of the function call and replace the function call with the returned value."
+);
+
+/**f.e: if I call A25() and it returns a string with 25 A's, I have to be able to just put the 25 A's in manually and the programm
+ * still has to run just as before. If that is the case, the function call is 100% pure.
+ *
+ * => A functio call is pure if it has referntial transperency
+ */
