@@ -589,7 +589,7 @@ function repeaterMemoizeLib(count) {
 
 // pure function calls: complete definition:
 
-console.log("Pure function call definition:");
+console.log("Pure function call definition!!!");
 console.log(
   "A function call is pure if one could take the returned value of the function call and replace the function call with the returned value."
 );
@@ -599,3 +599,67 @@ console.log(
  *
  * => A functio call is pure if it has referntial transperency
  */
+
+/**
+ *
+ *
+ *
+ *
+ *
+ *
+ */
+
+console.log("...generalized to specialized functions!!!");
+
+//  currying
+
+function ajax(url) {
+  return function getData(data) {
+    return function getCb(cb) {
+      //  something in here
+    };
+  };
+}
+
+//  strict currying (providing only one input at a time even though two are already available)
+ajax(1234)({ id: 43 })(() => console.log("hello"));
+//  lose currying (providing all inputs that are currently available at the time and then later the other ones)
+ajax(1234, { id: 43 })(() => console.log("hello"));
+
+// by calling the functions this way, we can save all the different function and pass the inputs one by one. We now have a set
+// of function that range from very generalized to quite specialized; And the more specialized function still have access to
+// the arguments of the general function due to closure.
+var getCustomer = ajax(1234);
+var getCurrentCustomer = getCustomer({ id: 42 });
+var greetCustomer = getCurrentCustomer(() => console.log("hello"));
+
+/**
+ *
+ *
+ *
+ *
+ *
+ */
+
+console.log("...composition!!!");
+function minus2(x) {
+  return x - 2;
+}
+function triple(x) {
+  return x * 3;
+}
+function increment(x) {
+  return x + 1;
+}
+
+var basePrice = 10;
+
+function shippingRate4(x) {
+  // here we pass the output of one function as the input of another one => composition:
+  return minus2(triple(increment(x)));
+}
+
+// instead of doing all the function calls here, we abstracted out the real computation into a seperate function 'shippingRate4'
+var totalCost = basePrice + shippingRate4(5);
+
+console.log(totalCost);
