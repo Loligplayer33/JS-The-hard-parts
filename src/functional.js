@@ -12,6 +12,7 @@ console.log("FUNCTIONAL PROGRAMMING");
 
 function addNumbers(x = 0, y = 0, z = 0, w = 0) {
   var total = x + y + z + w;
+  // logging makes a function impure
   console.log(total);
 }
 
@@ -26,7 +27,7 @@ extraNumbers(3, 8, 11); //62
    has to return something out of the function and they can only call other functions
    => if they call a procedure, they are a procedure too automatically
    => 'addNumbers' doesn't accomplish all of these criteria, therefore it is not a function.
-      'extraNumbers' is calling a procedure and through that validates one of the 
+      'extraNumbers' is calling a procedure and through that violates one of the 
       principles that it needs to qulify as a function
       => They are both procedures
    */
@@ -53,7 +54,7 @@ function shippingRate1(size, weight, speed) {
 
 shippingRate1(20, 5, 50);
 
-/**This function's outcome is in direct semantic relation to it's input values
+/**This function's output is in direct semantic relation to it's input values
  * If you look at the function name and the parameters, it gets clear for what the
  * parameters are needed, how they are going to affect the outcome and what the outcome
  * will represent => The relationship between the input and the output gets clear!
@@ -69,6 +70,8 @@ shippingRate1(20, 5, 50);
 
 console.log("...side Effects!!!");
 
+// no parameters correlating with the used vars => polluting / accessing outer namespace
+// => side Effect
 function shippingRate2() {
   rate = (size + 1) * weight + speed;
 }
@@ -87,9 +90,9 @@ console.log(`second rate: ${rate}`);
 
 /* This 'function' is really to what it is doing compared to 'shippingRate1'.
   But this time, it is not a real function but rather also a procedure.
-  => To understand why, we have to add another pice to our definition of what a function
+  => To understand why, we have to add another piece to our definition of what a function
     actually is: A function not only has to take some input, do something with it,
-    returns some output and has to have a semantic relationship between the input and
+    return some output and has to have a semantic relationship between the input and
     the computed output, it also has to be direct (not polluting or accessing
     any values outside of the function itself).
       => No indirect inputs nor outputs are allowed in a real function
@@ -107,9 +110,9 @@ rate3 = shippingRate3(8, 4, 6); // 42
 
 /*!!! 
    In JavaScript, there is no such thing as a 'function', there is such a thing
-   as a 'function call'. The actual definition of a function isn't the most inportant
-   par. The most Important part is that the function gets called, gives direct input
-   and got direct output at that specific call (cf. l.103, 104)
+   as a 'function call'. The actual definition of a function isn't the most important
+   part. The most Important part is that the function gets called, gives direct input
+   and gets direct output at that specific call (cf. l.104, 105)
 
    => The call is what determines if there are side-effects or not. That's why the 
       function call plays a big role in determening if we have a procedure or a function.
@@ -125,11 +128,11 @@ rate3 = shippingRate3(8, 4, 6); // 42
  * DOM
  * Timestamps
  * Random Numbers
- * (CPU Heat, CPU Time Delary)
+ * (CPU Heat, CPU Time Delay)
   => we notice that it is literually impossible to avoid all kind of side-effects
     Thats why it is not our goal to abandon them, but rather to be aware of them
     and try to minimize the amount. (We should do that, because side-effects take
-    away the benefits of function programming as a whole)
+    away the benefits of functional programming as a whole)
 
     => Make side-effect obvious and try to use them as little as possible
 
@@ -232,7 +235,7 @@ console.log("...Adapters!!!");
 
 // HIGHER ORDER FUNCTIONS
 
-// higher order function are functions that get other functions passed in as parameters
+// higher order function are functions that get other functions passed in as arguments
 function unary(fn) {
   return function one(arg) {
     console.log(arg);
@@ -256,7 +259,7 @@ var g = unary(f);
 // same as above just with the binary function.
 var h = binary(f);
 
-// if 'g' not gets called, it passes its first argument into 'one' and returns the parameter
+// if 'g' now gets called, it passes its first argument into 'one' and returns the parameter
 console.log(g(1, 2, 3, 4));
 // same thing here, but this time the function 'two' takes two paramters and is
 //therefore capable of returning the first to elements [1, 2]
@@ -566,7 +569,7 @@ console.log(A20()); //AAAAAAAAAAAAAAAAAAAA
 // How to solve the problem of readability? => use the memoization function provided by a fn programming library:
 
 function repeaterMemoizeLib(count) {
-  // memoize coming from a  3rd party library
+  // memoize coming from a 3rd party library
   return memoize(function allTheAs() {
     return "".padStart(count, "A");
   });
@@ -597,7 +600,7 @@ console.log(
 /**f.e: if I call A25() and it returns a string with 25 A's, I have to be able to just put the 25 A's in manually and the programm
  * still has to run just as before. If that is the case, the function call is 100% pure.
  *
- * => A functio call is pure if it has referntial transperency
+ * => A function call is pure if it has referntial transperency
  */
 
 /**
@@ -626,8 +629,8 @@ ajax(1234)({ id: 43 })(() => console.log("hello"));
 //  lose currying (providing all inputs that are currently available at the time and then later the other ones)
 ajax(1234, { id: 43 })(() => console.log("hello"));
 
-// by calling the functions this way, we can save all the different function and pass the inputs one by one. We now have a set
-// of function that range from very generalized to quite specialized; And the more specialized function still have access to
+// by calling the functions this way, we can save all the different functions and pass the inputs one by one. We now have a set
+// of function that range from very generalized to quite specialized; And the more specialized functions still have access to
 // the arguments of the general function due to closure.
 var getCustomer = ajax(1234);
 var getCurrentCustomer = getCustomer({ id: 42 });
@@ -663,3 +666,69 @@ function shippingRate4(x) {
 var totalCost = basePrice + shippingRate4(5);
 
 console.log(totalCost);
+
+// this works very well if we have only one shipping rate. But what if we have an ovesea one, an international one etc. ?
+// we need a function that outputs a function based on some inputted functions;
+
+function compose3(fn3, fn2, fn1) {
+  return function composed(v) {
+    return fn3(fn2(fn1(v)));
+  };
+}
+
+var internationalShipping = compose3(minus2, triple, increment);
+var intercontinentalShipping = compose3(increment, minus2, triple);
+
+console.log(internationalShipping(4)); //13
+console.log(intercontinentalShipping(6)); //17
+
+/**
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ */
+
+console.log("...immutability!!!");
+
+// Assignment immutability
+/* => Assignement immutability is the idea that if you assign something to a variable (or property) that it is not longer 
+   allowed to be reassigned to some other value
+*/
+
+// value immmutability
+
+function processOrder(order) {
+  if (!("status" in order)) {
+    // order gets changed => impure due to mutation (side-effect)
+    order.status = "complete";
+  }
+  saveToDatabase(order);
+}
+
+// the best thing for you to do when getting a mutable data structure to work with is: to assume that you are NOT allowed to mutate it
+// in any way. This is superior because you never know in which other part of the programm the same object is used => leads to bugs.
+// => no error !== no bug or problem later in the programm.
+
+// to solve this problem of having to mutate something is to make a copy: In the copy you can mutate the object as much as you want since
+// this doesn't create any kind of side-effects in the rest of the programm.
+
+function processOrder2(order) {
+  var processOrder = { ...order };
+  if (!("status" in order)) {
+    processOrder.status = "complete";
+  }
+  savetoDatabase(processOrder);
+}
+
+// but what if a data structure has to be mutated ? copies can take up a lot of memory and cpu power, especially if we have to make a
+// lot of them very frequently. The solution is very counterintuitive: immutable data-structures with the new change inside of them.
+// => these immutable data-structures don't copy the whole original one every time a new copy is made. They rather point at what has changed
+// and reference the rest of the data - structure.
