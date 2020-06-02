@@ -732,3 +732,124 @@ function processOrder2(order) {
 // lot of them very frequently. The solution is very counterintuitive: immutable data-structures with the new change inside of them.
 // => these immutable data-structures don't copy the whole original one every time a new copy is made. They rather point at what has changed
 // and reference the rest of the data - structure.
+
+console.log("...recursion!!!");
+
+// this is a completly valid solution, but it is very imperative and it is hard to understand what is happening here without reading the code
+
+function isVowel(char) {
+  return ["a", "e", "i", "o", "u"].includes(char);
+}
+
+function countVowels(str) {
+  var count = 0;
+  for (var i = 0; i < str.length; i++) {
+    if (isVowel(str[i])) {
+      count++;
+    }
+  }
+  return count;
+}
+
+console.log(countVowels("The quick brown fox jumps over the lazy dog")); //11
+
+// recursive way:
+
+function countVowelsRecursive(str) {
+  // base condition
+  if (str.length === 0) return 0;
+  // if the character === vowel than it return one else 0
+  var first = isVowel(str[0]) ? 1 : 0;
+  // 0 or 1 gets added to total number and the character gets removed (always the first one)
+  return first + countVowelsRecursive(str.slice(1));
+}
+
+console.log(
+  countVowelsRecursive("The quick brown fox jumps over the lazy dog")
+); //11
+
+/**
+ *
+ *
+ *
+ *
+ */
+
+console.log("...list operations!!!");
+
+//mapping:
+
+// map is a transformation operation => we take an element and do a transformation on it.
+// => a map always resolves with transformed values but with the same data structure
+
+function uniqId() {
+  return Math.round(Math.random() * 100);
+}
+
+function makeRecord(name) {
+  return { id: uniqId(), name };
+}
+
+function map(mapper, arr) {
+  var newList = [];
+  for (let elem of arr) {
+    newList.push(mapper(elem));
+  }
+  return newList;
+}
+
+console.log(map(makeRecord, ["kyle", "susan"]));
+
+// the standart api has the map method included by default:
+
+function makeRecord2(name) {
+  return { id: uniqId(), name };
+}
+
+console.log(["David", "Lucy"].map(makeRecord));
+
+// a mapper function should never do much than one thing on the same input types
+// map does trandformation
+
+// filter
+
+// filtering is a bit counterintuitive in programming: instead of filtering something out, filter approaches the problem from a different
+// angle. You don't specify what you want to throw away, but rather you specify what you want to keep.
+
+// => having an arr [1,2,3,4,5] and after the filter we got back [1,3,5] we haven't filtered out the even numbers but rather filtered in the odd ones
+
+// filter does inclusion (filterIn (defualt)) or exclusion (filterOut)
+
+function filterOutEven(arr) {
+  var newArr = [];
+  arr.filter(function filter(cur) {
+    if (cur % 2 === 1) {
+      newArr.push(cur);
+    }
+    return "";
+  });
+  return newArr;
+}
+
+var testArr = [1, 2, 3, 4, 5, 6, 7];
+var onlyOdd = filterOutEven(testArr);
+console.log(onlyOdd, testArr);
+
+// the original arr doesn't get mutated
+
+// Reduce (combining)
+
+// Reduce combines values. It takes multiple values and combines them in some way
+
+function addToRecord(record, [key, value]) {
+  return { ...record, [key]: value };
+}
+
+var result122 = [["name", "kyle"], ["age", 39], ["isTeacher", true]].reduce(
+  addToRecord,
+  {}
+);
+
+console.log(result122);
+
+// every function that takes two inputs and returns one one output can be thought of as an reducer.
