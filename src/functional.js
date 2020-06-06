@@ -853,3 +853,98 @@ var result122 = [["name", "kyle"], ["age", 39], ["isTeacher", true]].reduce(
 console.log(result122);
 
 // every function that takes two inputs and returns one one output can be thought of as an reducer.
+
+console.log();
+
+/**
+ *
+ *
+ *
+ *
+ *
+ *
+ */
+
+function add1(v) {
+  return v + 1;
+}
+function mul2(v) {
+  return v * 2;
+}
+function div3(v) {
+  return v / 3;
+}
+
+var list = [2, 3, 43, 45, 6, 4, 3, 23, 34, 4];
+
+// we chain three maps together to produce a specific output. But this is very imperative and we have to read whole code to understand
+// what is happening here.
+
+var modified = list
+  .map(add1)
+  .map(mul2)
+  .map(div3);
+
+console.log(modified);
+
+// since add1, mul2 and div3 have the same shape, we can compose them:
+function compose() {
+  return function placeholder() {
+    "this is a placeholder function for a method called compose";
+  };
+}
+
+// now we can do the same thing as above in a much more declarative way:
+
+list.map(
+  compose(
+    div3,
+    mul2,
+    add1
+  )
+);
+
+// TRANSDUCING
+
+console.log("...Transducing");
+
+// what if we have a chain of maps, filters and reducers? How could we put those together?
+// => Transducing
+
+function sum() {}
+
+list
+  .map(add1)
+  .filter(isOdd)
+  .reduce(sum);
+
+// it is not possible to compose these methods together. To still do it, we have to make .filter and .map into a reducer as well:
+
+list.reduce(function doItAll(total, v) {
+  v = add1(v);
+  if (isOdd(v)) {
+    total = sum(total, v);
+  }
+  return total;
+}, 0);
+
+// this approach works, but it is very imperative which is something we don't want to have.
+
+function mapReducer() {}
+function filterReducer() {}
+function transduce() {}
+function into() {}
+
+var transducer = compose(
+  mapReducer(add1),
+  filterReducer(isOdd)
+);
+
+// this is the function that actually reduces the transducer to a value: It needs the transucer, the reducer function that does the reducing,
+// the starting value and the data structure it should do the operation on
+transduce(transducer, sum, 0, list);
+
+// into selects the correct reducer for you automatically
+into(transducer, 0, list);
+
+// this is to complicated at the moment => come back to it !!
